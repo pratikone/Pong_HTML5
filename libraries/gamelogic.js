@@ -1,4 +1,4 @@
-
+//TODO : implement a PAUSE feature
 
 init = function () {
 
@@ -21,7 +21,7 @@ init = function () {
 		ctx = canvas.getContext( "2d" ), //create canvas context
 		W = 640; // get window's width
 		H = 480, //get window's height
-		count = 0, //counter for game's hit
+		score = 0, //scoreer for game's hit
 		reset = false,
 		color = "white";
 		
@@ -29,9 +29,15 @@ init = function () {
 	var particles = []; //Array contaning particles
 	var ball = {};
 	var paddles = [2]; //Array containing paddles
-	var mouse = {};
+	var mouse = {
+			oldx: 0,
+			oldy: 0,
+			x : 0,
+			y: 0,
+			swing : false
+		};
 	var box = {};
-	var old_time = new Date().getTime() / 1000;
+	var old_time = old_time_mouse = new Date().getTime() / 1000;
 	
 	
 	
@@ -41,9 +47,9 @@ init = function () {
 			y: 50,
 			r: 5,
 			c: "white",
-			vx: 4,
-			vy: 8,
-			
+			vx: 2,
+			vy: 4,
+			dir: "right",
 			// Function to draw a ball
 			draw : function() {
 
@@ -114,7 +120,7 @@ init = function () {
 		ball.draw();
 		//show score
 		ctx.font = "15px Clean"
-		ctx.fillText( "Score = "+count, W-100,H-20 );
+		ctx.fillText( "Score = "+score, W-100,H-20 );
 		
 		var timeFlag = false;
 		if (reset == true) {
@@ -141,7 +147,7 @@ init = function () {
 			})();
 		}
 		
-	
+		//update the positions
 		update();
 	}
 	
@@ -156,7 +162,6 @@ init = function () {
 	
 	
 	function update(){
-		console.log(count);
 		if (reset == true) {			
 			return;
 		}
@@ -190,6 +195,19 @@ init = function () {
 				resetgame();
 			}
 
+			}
+
+		//SWING
+		//storing old mouse values after an interval
+		var new_time_mouse = new Date().getTime() / 1000;
+		if (new_time_mouse - old_time_mouse >= 0.1){
+			old_time_mouse = new_time_mouse;	
+			mouse.oldx = mouse.x;
+			
+			}
+
+		if ( mouse.x - mouse.oldx  > 50){
+			mouse.swing = true;
 			}		
 		
 	}
@@ -199,13 +217,16 @@ init = function () {
 	canvas.addEventListener( "mousedown", trackClick, false );
 	
 	function trackPosition(e) {
+		
 		mouse.x = e.pageX;
 		mouse.y = e.pageY;
+
+		
 	}
 	
-	function trackClick(e){
-			count = reset == true ? 0 : count
-			reset = false;
+	function trackClick(e){ //restart the game and reset the score
+		score = reset == true ? 0 : score
+		reset = false;
 			
 		
 	}
@@ -236,6 +257,7 @@ init = function () {
 		if ( object == undefined ) //object is wall
 			{	
 			  ball.vx = -ball.vx;
+			  ball.dir = ball.dir == "left" ? "right" : "left";
 			}
 		else {
 			ball.vy = -ball.vy;
@@ -245,7 +267,13 @@ init = function () {
 			else {
 				//ball.y = object.y;
 			}		
-			count++;
+			score++;
+			//performing the swing action
+			if ( mouse.swing == true ){
+				ball.vx = -ball.vx;
+				ball.dir = ball.dir == "left" ? "right" : "left";
+				mouse.swing = false;
+			}
 		}
 			
 		

@@ -1,4 +1,5 @@
 //TODO : implement a PAUSE feature
+//TODO : Implement a ticker
 
 init = function () {
 
@@ -14,7 +15,7 @@ init = function () {
 			};
 	})();
 
-	
+//=============== INIT =======================================================================
 
 	//Initialize canvas and game variables
 	var canvas = document.getElementById('canvas'),
@@ -37,18 +38,18 @@ init = function () {
 			swing : false
 		};
 	var box = {};
-	var old_time = old_time_mouse = new Date().getTime() / 1000;
+	var old_time = old_time_mouse = old_swingON_time =new Date().getTime() / 1000;
 	
 	
-	
+
 
 	var ball = { // Ball object
 			x: 50,
 			y: 50,
 			r: 5,
 			c: "white",
-			vx: 2,
-			vy: 4,
+			vx: 4,
+			vy: 8,
 			dir: "right",
 			// Function to draw a ball
 			draw : function() {
@@ -61,6 +62,7 @@ init = function () {
 			
 		}; 
 
+//======================================================================================	
 
 	//Function for creating paddle operations
 	function Paddle(pos) { 
@@ -101,6 +103,8 @@ init = function () {
 	}
 
 
+//================== DRAW ====================================================================	
+
 	//draw everything
 	function draw() {
 		paintCanvas();
@@ -118,9 +122,17 @@ init = function () {
 
 		}
 		ball.draw();
-		//show score
-		ctx.font = "15px Clean"
-		ctx.fillText( "Score = "+score, W-100,H-20 );
+        
+        //function to show text on screen !
+        function showText(text, x, y){
+            ctx.font = "15px Clean"
+		    ctx.fillText( text, x,y );
+   
+
+        }
+
+		//show score		
+        showText( "Score = "+score, W-100, H-20 );
 		
 		var timeFlag = false;
 		if (reset == true) {
@@ -134,14 +146,13 @@ init = function () {
 			(function(){
 				
 				ctx.fillStyle = color;
-				ctx.fillRect(W/2-5, H/2, 90, 30);
+				ctx.fillRect(W/2-25, H/2, 90, 30);
 				if (timeFlag == true){
 					color = color == "white" ? "black" : "white";
 				}
 				
 				ctx.fillStyle = color == "white" ? "black" : "white";
-				ctx.font = "15px Clean"
-				ctx.fillText( "SAMAAPT!", W/2,H/2+20 );
+				showText( "SAMAAPT!", W/2-20,H/2+20 );
 				
 			
 			})();
@@ -151,6 +162,9 @@ init = function () {
 		update();
 	}
 	
+
+//======================================================================================	
+
 	//start the animation loop
 	function animLoop() {
 		requestAnimFrame(animLoop);
@@ -161,6 +175,8 @@ init = function () {
 	animLoop();
 	
 	
+//=========== UPDATE ===========================================================================	
+
 	function update(){
 		if (reset == true) {			
 			return;
@@ -206,11 +222,22 @@ init = function () {
 			
 			}
 
-		if ( mouse.x - mouse.oldx  > 50){
+		if ( mouse.x - mouse.oldx  > 100){
 			mouse.swing = true;
 			}		
+
+        //disable swing mode in case it is not disabled by collidingAction
+        if(mouse.swing){
+            var new_swingON_time = new Date().getTime() / 1000;
+            if (new_swingON_time - old_swingON_time > 0.5 ){ //disable after 2 seconds
+                mouse.swing = false;
+                old_swingON_time = new_swingON_time;                
+                }
+            }
 		
 	}
+
+//======================================================================================	
 	
 	//add mouse movement listener
 	canvas.addEventListener( "mousemove", trackPosition, true );

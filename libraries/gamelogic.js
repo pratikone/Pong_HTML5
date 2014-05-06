@@ -1,6 +1,6 @@
 //TODO : fix blinker for Paused mode
 //TODO : Implement a ticker
-
+//BUG : Samaapt and pause to play come simultaneously
 init = function () {
 
 

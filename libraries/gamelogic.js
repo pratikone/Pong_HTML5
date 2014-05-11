@@ -22,7 +22,9 @@ init = function () {
 		ctx = canvas.getContext( "2d" ), //create canvas context
 		W = 640; // get window's width
 		H = 480, //get window's height
-		score = 0, //scoreer for game's hit
+		score = 0, //score for game's hit,
+		ball_id = 0, //keep track of ball to be introduced 
+		ball_spawn = false, //flag to check if the ball has spawned or not (to avoid spawning multiple balls at once)
 		reset = false,
 		color = "white",
 		paused = true;
@@ -45,6 +47,7 @@ init = function () {
 
 
 	var ball = { // Ball object
+			id: 0,
 			x: 50,
 			y: 50,
 			r: 5,
@@ -64,9 +67,11 @@ init = function () {
 		}; 
 
 	//add dummy balls to the list, new balls will be added after a certain timer gets over
-	var ballList = [3];
-	ballList[0] = ball;
-	ballList[1] = ballList[2] = undefined ;
+	var ballList = [10];
+	ballList[0] = undefined;
+	//ballList[1] = ballList[2] = undefined ;
+	
+	
 
 //======================================================================================	
 
@@ -83,6 +88,24 @@ init = function () {
 		this.y = (pos == "top") ? 0 : H - this.h;	
 	}
 	
+	
+	 //ADD Ball
+	function ballAdd( id ){ //inheritance by prototyping
+		if( id >= 10 )
+			return;
+			
+		var ballSecond = Object.create( ball );
+		ballSecond.x = H/2, ballSecond.y = W/2;
+		ballSecond.id = id;
+		ballList[ id ] = ballSecond;
+		
+		ball_id++;
+	}
+	
+	//REMOVE Ball
+	function ballRemove( id ){
+		ballList[ id ] = undefined;
+	}
 	//collision box
 	function getCollisionBox (parent) {
 		if (parent.y == 0 ){
@@ -110,6 +133,8 @@ init = function () {
 		ctx.fillRect(0, 0, W, H);
 	}
 
+	
+	
 
 //================== DRAW ====================================================================	
 
@@ -216,7 +241,14 @@ init = function () {
 			}	
 		}
 		
-
+		//check score and do something
+		if ( score % 5 == 0 && ball_spawn == false  ){
+			ballAdd( ball_id );
+			ball_spawn = true; //change flag state to avoid multiple balls spawning at once
+		}
+		if( score % 5 == 1 ) //turn flag to original state
+			ball_spawn = false;
+		
 		for( var i = 0; i < ballList.length; i++ ) {
 			if (ballList[i] != undefined){
 				if( isColliding(ballList[i]) ){ //collision with wall
@@ -233,7 +265,7 @@ init = function () {
 					}
 				else{
 					if ( ballList[i].y > H || ballList[i].y < 0 ){ //if ball goes out of the bound
-						resetgame();
+						resetgame(ballList[i].id);
 						}
 					}//ending else
 			}//ending undefined if 
@@ -293,7 +325,7 @@ init = function () {
 			}
 			printDebug();
 	}
-	
+//============ COLLISION ZONE ========================================================================	
 	//collision check
 	function isColliding(ball, object){
 		if ( object == undefined ){
@@ -317,6 +349,7 @@ init = function () {
 	
 	
 	function collidingAction(ball, object){
+			
 		if ( object == undefined ) //object is wall
 			{	
 			  ball.vx = -ball.vx;
@@ -325,10 +358,10 @@ init = function () {
 		else {
 			ball.vy = -ball.vy;
 			if ( paddleHit == 1 ){
-				//ball.y = object.y - object.h;
+				ball.y = ball.y + 1; // uncommented to fix the weird corner ball bug
 			}
 			else {
-				//ball.y = object.y;
+				ball.y = ball.y - 1; // uncommented to fix the weird corner ball bug
 			}		
 			score++;
 			//performing the swing action
@@ -342,18 +375,32 @@ init = function () {
 		
 	}
 	
-	
-	function resetgame(){
-		ball.x = W/2, ball.y = H/2, ball.vy = -ball.vy;
-		reset = true;
-		
-	}
+//==========================================================================================	
+	function resetgame( id ){
+		//remove ball from the scene
+		ballRemove( id );
+				
+		//in case of the last ball
+//		ball.x = W/2, ball.y = H/2, ball.vy = -ball.vy;
 
+		reset = true;	
+		for( var i = 0; i < ballList.length; i++ ) {
+			if (ballList[i] != undefined){
+				reset = false;
+				return;
+			}
+		}
+		
+		ball_id = 0; //reset ball id if the last ball is also gone out
+		ball_spawn = false;
+	}
+	
+//=================== DEBUG ===============================================================
 	function printDebug(){
 		console.log( "================================================" )
 		for( var i = 0; i < ballList.length; i++ ) {
 			if (ballList[i] != undefined){
-				console.log("Ball : "+ i + " X-> " + ballList[i].x + " Y-> " + ballList[i].y + " Dir-> " + ballList[i].dir );
+				console.log("Ball : "+ ballList[i].id + " X-> " + ballList[i].x + " Y-> " + ballList[i].y + " Dir-> " + ballList[i].dir );
 			}
 		}
 

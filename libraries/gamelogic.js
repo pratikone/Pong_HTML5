@@ -1,3 +1,4 @@
+//TODO : Use angle instead of x and y for ball direction, easier for play-testing.
 //TODO : fix blinker for Paused mode
 //TODO : Implement a ticker
 //BUG : Samaapt and pause to play come simultaneously
@@ -27,8 +28,11 @@ init = function () {
 		ball_spawn = false, //flag to check if the ball has spawned or not (to avoid spawning multiple balls at once)
 		reset = false,
 		color = "white",
-		paused = true;
-		
+		paused = true,
+	    X_SPEED = 4,
+        Y_SPEED = 8,
+        NUM_OF_BALLS = 5;
+	
 		
 	var particles = []; //Array contaning particles
 	var ball = {};
@@ -45,15 +49,14 @@ init = function () {
 	
 	
 
-
 	var ball = { // Ball object
 			id: 0,
 			x: 50,
 			y: 50,
 			r: 5,
 			c: "white",
-			vx: 4,
-			vy: 8,
+			vx: X_SPEED,
+			vy: Y_SPEED,
 			dir: "right",
 			// Function to draw a ball
 			draw : function() {
@@ -67,7 +70,7 @@ init = function () {
 		}; 
 
 	//add dummy balls to the list, new balls will be added after a certain timer gets over
-	var ballList = [10];
+	var ballList = [NUM_OF_BALLS];
 	ballList[0] = undefined;
 	//ballList[1] = ballList[2] = undefined ;
 	
@@ -91,11 +94,15 @@ init = function () {
 	
 	 //ADD Ball
 	function ballAdd( id ){ //inheritance by prototyping
-		if( id >= 10 )
+		if( id >= NUM_OF_BALLS )
 			return;
 			
 		var ballSecond = Object.create( ball );
 		ballSecond.x = H/2, ballSecond.y = W/2;
+        X_SPEED -= 0.2;
+        Y_SPEED -= 0.5;
+        ballSecond.vx = X_SPEED;
+        ballSecond.vy = Y_SPEED;
 		ballSecond.id = id;
 		ballList[ id ] = ballSecond;
 		
@@ -393,6 +400,8 @@ init = function () {
 		
 		ball_id = 0; //reset ball id if the last ball is also gone out
 		ball_spawn = false;
+        X_SPEED = 4;
+        Y_SPEED = 8;
 	}
 	
 //=================== DEBUG ===============================================================

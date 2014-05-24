@@ -1,7 +1,6 @@
 //TODO : Use angle instead of x and y for ball direction, easier for play-testing.
 //TODO : fix blinker for Paused mode
 //TODO : Implement a ticker
-//BUG : Samaapt and pause to play come simultaneously
 init = function () {
 
 
@@ -31,7 +30,7 @@ init = function () {
 		paused = true,
 	    X_SPEED = 4,
         Y_SPEED = 8,
-        NUM_OF_BALLS = 5;
+        NUM_OF_BALLS = 10;
 	
 		
 	var particles = []; //Array contaning particles
@@ -58,6 +57,8 @@ init = function () {
 			vx: X_SPEED,
 			vy: Y_SPEED,
 			dir: "right",
+            state : "static", // can be static or moving,
+            origin_time : undefined, //when ball spawned
 			// Function to draw a ball
 			draw : function() {
 
@@ -99,11 +100,16 @@ init = function () {
 			
 		var ballSecond = Object.create( ball );
 		ballSecond.x = H/2, ballSecond.y = W/2;
-        X_SPEED -= 0.2;
-        Y_SPEED -= 0.5;
+        
+        //decide the speed of the new ball
+        X_SPEED > 2 ? X_SPEED = X_SPEED - 0.5 : X_SPEED = getRandomArbitary( 1, 4 );
+        Y_SPEED > 4 ? Y_SPEED = Y_SPEED - 1.0 : Y_SPEED = getRandomArbitary( 2, 8 );
+        
+        
         ballSecond.vx = X_SPEED;
         ballSecond.vy = Y_SPEED;
 		ballSecond.id = id;
+        ballSecond.origin_time = new Date().getTime() / 1000;
 		ballList[ id ] = ballSecond;
 		
 		ball_id++;
@@ -235,8 +241,20 @@ init = function () {
 		
 		//Move the ball
 		for( var i = 0; i < ballList.length; i++ ) {
-			if (ballList[i] != undefined) 
-					ballList[i].x += ballList[i].vx, ballList[i].y += ballList[i].vy;
+			if (ballList[i] != undefined){ 
+					
+                    var new_time_ball = new Date().getTime() / 1000;
+                 
+                    if (  ballList[i].state == "static" ) {
+                        if ( new_time_ball - ballList[i].origin_time > 1  ){
+                            
+                              ballList[i].state = "moving";
+                            }
+                    }else { //if ball is already moving, change its position
+                            ballList[i].x += ballList[i].vx, ballList[i].y += ballList[i].vy;
+                    }
+     
+                }
         }
 		
 		//move the paddles
@@ -328,6 +346,8 @@ init = function () {
 	function pauseFlag(e){ // toggle paused time
 		if ( e.keyCode == 80 ) //check for button p
 			{
+                if (reset == true)
+                    return;
 				paused = paused == true ? false : true ;
 			}
 			printDebug();
@@ -404,6 +424,15 @@ init = function () {
         Y_SPEED = 8;
 	}
 	
+    /**
+    * Returns a random number between min (inclusive) and max (exclusive)
+    * Inspired from Mozilla JS Docs
+    */
+    function getRandomArbitary (min, max) {
+        return Math.random() * (max - min) + min;
+    }
+    
+    
 //=================== DEBUG ===============================================================
 	function printDebug(){
 		console.log( "================================================" )

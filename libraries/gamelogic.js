@@ -105,12 +105,36 @@ init = function () {
         X_SPEED > 2 ? X_SPEED = X_SPEED - 0.5 : X_SPEED = getRandomArbitary( 1, 4 );
         Y_SPEED > 4 ? Y_SPEED = Y_SPEED - 1.0 : Y_SPEED = getRandomArbitary( 2, 8 );
         
-        
-        ballSecond.vx = X_SPEED;
-        ballSecond.vy = Y_SPEED;
-		ballSecond.id = id;
-        ballSecond.origin_time = new Date().getTime() / 1000;
-		ballList[ id ] = ballSecond;
+        //Introduce some randomness in the balls
+        var rand = parseInt(getRandomArbitary(0,99));
+        if(rand % 2 == 0){
+            ballSecond.vx = X_SPEED;
+            ballSecond.vy = Y_SPEED;
+            ballSecond.id = id;
+            ballSecond.origin_time = new Date().getTime() / 1000;
+            ballList[ id ] = ballSecond;
+        }
+        else if(rand % 3 == 0){
+            ballSecond.vx = -1 * X_SPEED;
+            ballSecond.vy = Y_SPEED;
+            ballSecond.id = id;
+            ballSecond.origin_time = new Date().getTime() / 1000;
+            ballList[ id ] = ballSecond;
+        }
+        else if(rand % 7 == 0){
+            ballSecond.vx = X_SPEED;
+            ballSecond.vy = -1 * Y_SPEED;
+            ballSecond.id = id;
+            ballSecond.origin_time = new Date().getTime() / 1000;
+            ballList[ id ] = ballSecond;
+        }
+        else{
+            ballSecond.vx = -1 * X_SPEED;
+            ballSecond.vy = -1 * Y_SPEED;
+            ballSecond.id = id;
+            ballSecond.origin_time = new Date().getTime() / 1000;
+            ballList[ id ] = ballSecond;
+        }
 		
 		ball_id++;
 	}
